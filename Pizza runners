@@ -137,6 +137,8 @@ SELECT
   COUNT(DISTINCT order_id) as successful_orders
 FROM runner_orders 
 WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
 GROUP BY runner_id;
 
 4. How many of each type of pizza was delivered? 
@@ -151,6 +153,8 @@ on ro.order_id = co.order_id
 JOIN pizza_names pn 
 on co.pizza_id = pn.pizza_id
 WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
 GROUP BY co.pizza_id, pizza_name;
 
 5. How many Vegetarian and Meatlovers were ordered by each customer? 
@@ -173,6 +177,8 @@ FROM runner_orders ro
 JOIN customer_orders co
 on ro.order_id = co.order_id
 WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
 GROUP BY ro.order_id
 ORDER BY num_pizzas desc
 LIMIT 1;
@@ -196,11 +202,46 @@ SELECT
 FROM runner_orders ro
 JOIN customer_orders co ON ro.order_id = co.order_id
 WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
 GROUP BY co.customer_id
 ORDER BY co.customer_id;
 
-How many pizzas were delivered that had both exclusions and extras? 
+8. How many pizzas were delivered that had both exclusions and extras? 
 
-What was the total volume of pizzas ordered for each hour of the day? 
+SELECT 
+ sum(CASE 
+      WHEN (exclusions IS NOT NULL AND exclusions <> 'null' AND exclusions <> '') AND (extras IS NOT NULL AND extras <> 'null' AND extras <> '') exclusions_and_extras
+      THEN 1
+      ELSE 0
+  END) AS changes
+FROM runner_orders ro
+JOIN customer_orders co ON ro.order_id = co.order_id
+WHERE pickup_time <> 'null'
 
-What was the volume of orders for each day of the week? 
+9. What was the total volume of pizzas ordered for each hour of the day? 
+
+SELECT 
+  extract(hour from pickup_time::timestamp), 
+  count(*)
+FROM runner_orders ro
+JOIN customer_orders co ON ro.order_id = co.order_id
+WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
+group by extract(hour from pickup_time::timestamp)
+
+10. What was the volume of orders for each day of the week? 
+
+SELECT 
+  TO_CHAR(pickup_time::TIMESTAMP, 'FMDay') AS day_of_week, 
+  COUNT(*) AS order_count
+FROM runner_orders ro
+JOIN customer_orders co ON ro.order_id = co.order_id
+WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
+GROUP BY TO_CHAR(pickup_time::TIMESTAMP, 'FMDay')
+ORDER BY MIN(pickup_time::TIMESTAMP);
+
+
