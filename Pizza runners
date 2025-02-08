@@ -315,6 +315,28 @@ AND pickup_time <> ''
 
 6. What was the average speed for each runner for each delivery and do you notice any trend for these values?
 
+SELECT 
+	runner_id, 
+	CAST(REGEXP_REPLACE(distance, '[^0-9.]', '', 'g') AS NUMERIC)/ (REGEXP_REPLACE(duration, '[^0-9.]', '', 'g')::FLOAT/60) kmph
+FROM runner_orders ro
+JOIN customer_orders co
+on ro.order_id = co.order_id
+WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
+ORDER BY runner_id
 
-What is the successful delivery percentage for each runner?
+7. What is the successful delivery percentage for each runner?
 
+SELECT 
+	runner_id,
+	SUM(
+		CASE 
+			WHEN pickup_time = 'null'
+			OR pickup_time IS  NULL 
+			OR pickup_time = ''
+			THEN 0 else 1
+			END) / 
+	COUNT(DISTINCT(order_id))::float*100
+FROM runner_orders ro
+GROUP BY runner_id
