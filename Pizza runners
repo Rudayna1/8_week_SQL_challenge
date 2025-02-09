@@ -340,3 +340,21 @@ SELECT
 	COUNT(DISTINCT(order_id))::float*100
 FROM runner_orders ro
 GROUP BY runner_id
+
+Section C
+
+1. What are the standard ingredients for each pizza?
+
+WITH cte as (SELECT 
+    pr.pizza_id, 
+    pn.pizza_name,
+    string_to_table(pr.toppings, ', ')::integer ind_ingredients
+FROM pizza_recipes pr
+JOIN pizza_names pn on pn.pizza_id = pr.pizza_id)
+
+SELECT  
+	pizza_name, 
+	STRING_AGG(pt.topping_name, ', ') AS toppings_list
+FROM cte 
+JOIN pizza_toppings pt on pt.topping_id = cte.ind_ingredients 
+GROUP BY pizza_name
