@@ -393,4 +393,20 @@ GROUP BY topping_name
 ORDER BY count(ind_ingredients) desc
 LIMIT 1
 
-4. 
+D. Pricing and Ratings
+
+1. If a Meat Lovers pizza costs $12 and Vegetarian costs $10 and there were no charges for changes - how much money has Pizza Runner made so far if there are no delivery fees?
+
+SELECT 
+	SUM(CASE 
+		WHEN pizza_id = 1 THEN 12 
+		ELSE 10 
+		END)
+FROM customer_orders co
+JOIN runner_orders ro
+ON ro.order_id = co.order_id
+WHERE pickup_time <> 'null'
+AND pickup_time IS NOT NULL 
+AND pickup_time <> ''
+
+2. 
